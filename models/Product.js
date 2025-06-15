@@ -4,12 +4,20 @@ import mongoose from 'mongoose';
 const ProductSchema = new mongoose.Schema(
   {
     sku: String,
-    price: Number,
+    fabric: String,
     color: String,
     imageUrl: String,
-    deleteRequest: { 
-      type: Boolean, 
-      default: false 
+    specialty: String,
+    priceStr: String,
+    price: Number,
+    sizes: String,
+    sleeveType: String,
+    catalogue: String,
+    gst5Percent: String,
+    singleAvailable: String,
+    deleteRequest: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
