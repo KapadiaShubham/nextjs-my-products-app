@@ -15,6 +15,7 @@ const ProductSchema = new mongoose.Schema(
     catalogue: String,
     gst5Percent: String,
     singleAvailable: String,
+    type: String,
     deleteRequest: {
       type: Boolean,
       default: false,

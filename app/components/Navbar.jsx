@@ -13,7 +13,7 @@ export default function Navbar() {
     }`;
 
   return (
-    <nav className="bg-white shadow p-4 sticky top-0 z-50">
+    <nav className="bg-white shadow p-4 z-50">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
         <Link href="/" className="text-xl font-bold text-blue-700">
           Dhunki Product App

@@ -61,7 +61,7 @@ export default function AllProducts() {
                     setCopiedId(p._id);
                     setTimeout(() => setCopiedId(null), 1500);
                   }}
-                  className={`px-3 py-1 text-sm rounded border font-bold transition-all duration-200 ${
+                  className={`px-3 py-1 text-sm rounded border font-bold transition-all duration-200 cursor-pointer ${
                     copiedId === p._id
                       ? 'bg-green-100 border-green-400 text-green-700'
                       : 'bg-white border-gray-300 hover:bg-gray-100 text-gray-700'
@@ -76,8 +76,8 @@ export default function AllProducts() {
                     loadingId === p._id
                       ? 'bg-gray-400 cursor-not-allowed'
                       : p.deleteRequest
-                      ? 'bg-red-500 hover:bg-red-600'
-                      : 'bg-blue-500 hover:bg-blue-600'
+                      ? 'bg-red-500 hover:bg-red-600 cursor-pointer'
+                      : 'bg-blue-500 hover:bg-blue-600 cursor-pointer'
                   }`}
                   onClick={async () => {
                     setLoadingId(p._id);
@@ -127,18 +127,18 @@ export default function AllProducts() {
                 <CldImage
                   src={p.imageUrl}
                   alt={`${p.sku} - ${p.color}`}
-                  width={200}
-                  height={400}
+                  width={50}
+                  height={100}
                   className='w-full h-full object-cover'
                 />
-                <a
+                {/* <a
                   href={p.imageUrl}
                   target='_blank'
                   rel='noopener noreferrer'
                   className='text-blue-500 text-sm mt-2 underline cursor-pointer'
                 >
                   View Image
-                </a>
+                </a> */}
               </div>
             )}
           </div>
