@@ -2,18 +2,20 @@
 import { useState, useRef } from 'react';
 
 export default function AddProduct() {
-  const [sku, setSku] = useState('');
-  const [price, setPrice] = useState('');
-  const [color, setColor] = useState('');
-  const [fabric, setFabric] = useState('');
-  const [specialty, setSpecialty] = useState('');
-  const [priceStr, setPriceStr] = useState('');
-  const [sizes, setSizes] = useState('');
-  const [sleeveType, setSleeveType] = useState('');
-  const [catalogue, setCatalogue] = useState('');
-  const [gst5Percent, setGst5Percent] = useState('');
-  const [singleAvailable, setSingleAvailable] = useState('');
-  const [type, setType] = useState('');
+  const [form, setForm] = useState({
+    sku: '',
+    price: '',
+    priceStr: '',
+    color: '',
+    fabric: '',
+    specialty: '',
+    sizes: '',
+    sleeveType: '',
+    catalogue: '',
+    gst5Percent: '',
+    singleAvailable: '',
+    type: '',
+  });
 
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -21,6 +23,33 @@ export default function AddProduct() {
   const [saving, setSaving] = useState(false);
 
   const fileInputRef = useRef(null);
+
+  const fields = [
+    { id: 'sku', label: 'Product SKU', placeholder: 'e.g. Dhunki 001' },
+    {
+      id: 'price',
+      label: 'Price (₹)',
+      placeholder: 'e.g. 499',
+      type: 'number',
+    },
+    { id: 'priceStr', label: 'Price Text', placeholder: 'e.g. ₹499 + GST' },
+    { id: 'color', label: 'Color', placeholder: 'e.g. Black' },
+    { id: 'fabric', label: 'Fabric', placeholder: 'e.g. Premium Georgette' },
+    {
+      id: 'specialty',
+      label: 'Specialty',
+      placeholder: 'e.g. Embroidered Neck',
+    },
+    { id: 'sizes', label: 'Available Sizes', placeholder: 'e.g. M, L, XL' },
+    { id: 'sleeveType', label: 'Sleeve Type', placeholder: 'e.g. Full Sleeve' },
+    { id: 'catalogue', label: 'Catalogue', placeholder: 'e.g. 4 PCS' },
+    { id: 'gst5Percent', label: 'GST 5%', placeholder: 'e.g. Extra' },
+    {
+      id: 'singleAvailable',
+      label: 'Single Available?',
+      placeholder: 'e.g. Yes / No',
+    },
+  ];
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -39,6 +68,11 @@ export default function AddProduct() {
     setPrice('');
     setColor('');
     removeImage();
+  };
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setForm((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleSubmit = async () => {
@@ -97,86 +131,17 @@ export default function AddProduct() {
         </h1>
 
         <div className='space-y-5'>
-          <InputField
-            id='sku'
-            label='Product SKU'
-            placeholder='e.g. Dhunki 001'
-            value={sku}
-            onChange={(e) => setSku(e.target.value)}
-          />
-          <InputField
-            id='price'
-            type='number'
-            label='Price (₹)'
-            placeholder='e.g. 499'
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
-          <InputField
-            id='priceStr'
-            label='Price Text'
-            placeholder='e.g. ₹499 + GST'
-            value={priceStr}
-            onChange={(e) => setPriceStr(e.target.value)}
-          />
-          <InputField
-            id='color'
-            label='Color'
-            placeholder='e.g. Black'
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-          />
-          <InputField
-            id='fabric'
-            label='Fabric'
-            placeholder='e.g. Premium Georgette'
-            value={fabric}
-            onChange={(e) => setFabric(e.target.value)}
-          />
-          <InputField
-            id='specialty'
-            label='Specialty'
-            placeholder='e.g. Embroidered Neck'
-            value={specialty}
-            onChange={(e) => setSpecialty(e.target.value)}
-          />
-          <InputField
-            id='sizes'
-            label='Available Sizes'
-            placeholder='e.g. M, L, XL'
-            value={sizes}
-            onChange={(e) => setSizes(e.target.value)}
-          />
-          <InputField
-            id='sleeveType'
-            label='Sleeve Type'
-            placeholder='e.g. Full Sleeve'
-            value={sleeveType}
-            onChange={(e) => setSleeveType(e.target.value)}
-          />
-          <InputField
-            id='catalogue'
-            label='Catalogue'
-            placeholder='e.g. 4 PCS'
-            value={catalogue}
-            onChange={(e) => setCatalogue(e.target.value)}
-          />
-
-          <InputField
-            id='gst5Percent'
-            label='GST 5%'
-            placeholder='e.g. Extra'
-            value={gst5Percent}
-            onChange={(e) => setGst5Percent(e.target.value)}
-          />
-
-          <InputField
-            id='singleAvailable'
-            label='Single Available?'
-            placeholder='e.g. Yes / No'
-            value={singleAvailable}
-            onChange={(e) => setSingleAvailable(e.target.value)}
-          />
+          {fields.map(({ id, label, placeholder, type }) => (
+            <InputField
+              key={id}
+              id={id}
+              label={label}
+              placeholder={placeholder}
+              type={type}
+              value={form[id]}
+              onChange={handleChange}
+            />
+          ))}
 
           <div>
             <label
@@ -187,8 +152,8 @@ export default function AddProduct() {
             </label>
             <select
               id='type'
-              value={type}
-              onChange={(e) => setType(e.target.value)}
+              value={form.type}
+              onChange={handleChange}
               className='w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-300 outline-none transition'
             >
               <option value=''>Select Type</option>
@@ -211,7 +176,7 @@ export default function AddProduct() {
               onClick={() => {
                 if (!imagePreview) fileInputRef.current?.click();
               }}
-              className={`w-full border-2 border-dashed p-3 rounded-lg rounded-xl text-center flex items-center justify-center transition ${
+              className={`w-full border-2 border-dashed p-3 rounded-lg text-center flex items-center justify-center transition ${
                 imagePreview
                   ? 'border-gray-300 bg-gray-100 cursor-default h-48'
                   : 'border-blue-300 hover:bg-blue-50 cursor-pointer hover:border-blue-400'

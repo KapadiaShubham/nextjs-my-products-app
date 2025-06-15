@@ -17,12 +17,31 @@ export default function AllProducts() {
       .then((data) => setProducts(data));
   }, []);
 
-  const filtered = products.filter(
-    (p) =>
-      p.sku.includes(search) ||
-      p.color.includes(search) ||
-      String(p.price).includes(search)
+  const filtered = products.filter((p) => {
+  const terms = search.toLowerCase().split(' ').filter(Boolean);
+
+  const searchableFields = [
+    p.sku,
+    p.fabric,
+    p.color,
+    p.specialty,
+    p.priceStr,
+    String(p.price),
+    p.sizes,
+    p.sleeveType,
+    p.catalogue,
+    p.gst5Percent,
+    p.singleAvailable,
+    p.type,
+  ];
+
+  return terms.every((term) =>
+    searchableFields.some((field) =>
+      String(field).toLowerCase().includes(term)
+    )
   );
+});
+
 
   const copyId = (id) => {
     navigator.clipboard.writeText(id);
