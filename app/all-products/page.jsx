@@ -1,10 +1,14 @@
 // 6. app/all-products/page.jsx
 'use client';
 import { useEffect, useState } from 'react';
+import { CldImage } from "next-cloudinary";
 
 export default function AllProducts() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
+
+  const [copiedId, setCopiedId] = useState(null);
+
   const [loadingId, setLoadingId] = useState(null); // holds the ID of the product being updated
 
   useEffect(() => {
@@ -35,85 +39,108 @@ export default function AllProducts() {
       />
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         {filtered.map((p) => (
-          // <div key={p._id} className="border p-4 rounded-xl shadow">
-          //   <p><strong>SKU:</strong> {p.sku}</p>
-          //   <p><strong>Price:</strong> {p.price}</p>
-          //   <p><strong>Color:</strong> {p.color}</p>
-          //   {p.imageUrl && <img src={p.imageUrl} className="w-32 h-32 object-cover my-2" />}
-          //   {p.imageUrl && <a href={p.imageUrl} className="text-blue-500 text-sm" target="_blank">View Image</a>}
-          //   <button className="bg-gray-200 px-2 py-1 text-sm mt-2" onClick={() => copyId(p._id)}>Copy ID</button>
-          // </div>
-          <div key={p._id} className='border rounded p-4 shadow'>
-            <p>
-              <strong>SKU:</strong> {p.sku}
-            </p>
-            <p>
-              <strong>Price:</strong> {p.price}
-            </p>
-            <p>
-              <strong>Color:</strong> {p.color}
-            </p>
+          <div key={p._id} className='border rounded shadow p-4 flex gap-4'>
+            {/* Left side: Info and Buttons */}
+            <div className='flex-1 flex flex-col justify-between'>
+              <div>
+                <p>
+                  <strong>SKU:</strong> {p.sku}
+                </p>
+                <p>
+                  <strong>Price:</strong> {p.price}
+                </p>
+                <p>
+                  <strong>Color:</strong> {p.color}
+                </p>
+              </div>
+
+              <div className='mt-4 flex flex-col items-start gap-2'>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(p._id);
+                    setCopiedId(p._id);
+                    setTimeout(() => setCopiedId(null), 1500);
+                  }}
+                  className={`px-3 py-1 text-sm rounded border font-bold transition-all duration-200 ${
+                    copiedId === p._id
+                      ? 'bg-green-100 border-green-400 text-green-700'
+                      : 'bg-white border-gray-300 hover:bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  {copiedId === p._id ? 'Copied!' : 'Copy ID'}
+                </button>
+
+                <button
+                  disabled={loadingId === p._id}
+                  className={`px-3 py-1 rounded text-white transition-colors ${
+                    loadingId === p._id
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : p.deleteRequest
+                      ? 'bg-red-500 hover:bg-red-600'
+                      : 'bg-blue-500 hover:bg-blue-600'
+                  }`}
+                  onClick={async () => {
+                    setLoadingId(p._id);
+
+                    const res = await fetch('/api/products/patch', {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        id: p._id,
+                        deleteRequest: !p.deleteRequest,
+                      }),
+                    });
+
+                    if (res.ok) {
+                      const updatedProduct = await res.json();
+                      setProducts((prev) =>
+                        prev.map((p) =>
+                          p._id === updatedProduct._id ? updatedProduct : p
+                        )
+                      );
+                    }
+
+                    setLoadingId(null);
+                  }}
+                >
+                  {loadingId === p._id ? (
+                    <>
+                      <span className='animate-spin mr-2'>⏳</span>Processing...
+                    </>
+                  ) : p.deleteRequest ? (
+                    'Cancel Delete'
+                  ) : (
+                    'Request Delete'
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Right side: Image */}
             {p.imageUrl && (
-              <>
-                <img
+              <div className='w-40 flex flex-col items-center'>
+                {/* <img
                   src={p.imageUrl}
                   alt='Product'
-                  className='w-32 h-32 object-cover mt-2'
+                  className='w-full h-48 object-cover rounded'
+                /> */}
+                <CldImage
+                  src={p.imageUrl}
+                  alt={`${p.sku} - ${p.color}`}
+                  width={200}
+                  height={400}
+                  className='w-full h-full object-cover'
                 />
-                {/* <p className='text-sm text-blue-600 break-all'>
-                  {p.imageUrl}
-                </p> */}
-              </>
+                <a
+                  href={p.imageUrl}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-blue-500 text-sm mt-2 underline cursor-pointer'
+                >
+                  View Image
+                </a>
+              </div>
             )}
-
-            <button
-              disabled={loadingId === p._id}
-              className={`mt-2 px-3 py-1 rounded text-white transition-colors ${
-                loadingId === p._id
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : p.deleteRequest
-                  ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-blue-500 hover:bg-blue-600'
-              }`}
-              onClick={async () => {
-                setLoadingId(p._id); // start loading
-
-                const res = await fetch('/api/products/patch', {
-                  method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    id: p._id,
-                    deleteRequest: !p.deleteRequest,
-                  }),
-                });
-
-                if (res.ok) {
-                  const updatedProduct = await res.json();
-                  setProducts((prev) =>
-                    prev.map((p) =>
-                      p._id === updatedProduct._id ? updatedProduct : p
-                    )
-                  );
-                }
-
-                setLoadingId(null); // stop loading
-              }}
-            >
-              {loadingId === p._id
-                ? <><span className="animate-spin mr-2">⏳</span>Processing...</>
-                : p.deleteRequest
-                ? 'Cancel Delete'
-                : 'Request Delete'}
-            </button>
-
-            <button
-              className='mt-2 ml-2 text-sm text-gray-600 underline'
-              onClick={() => {
-                navigator.clipboard.writeText(p._id);
-              }}
-            >
-              Copy ID
-            </button>
           </div>
         ))}
       </div>
