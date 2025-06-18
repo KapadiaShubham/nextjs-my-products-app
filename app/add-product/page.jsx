@@ -1,3 +1,4 @@
+// app/add-product/page.jsx
 'use client';
 import { useState, useRef } from 'react';
 
@@ -64,9 +65,20 @@ export default function AddProduct() {
   };
 
   const clearForm = () => {
-    setSku('');
-    setPrice('');
-    setColor('');
+    setForm({
+    sku: '',
+    price: '',
+    priceStr: '',
+    color: '',
+    fabric: '',
+    specialty: '',
+    sizes: '',
+    sleeveType: '',
+    catalogue: '',
+    gst5Percent: '',
+    singleAvailable: '',
+    type: '',
+  })
     removeImage();
   };
 
@@ -100,19 +112,9 @@ export default function AddProduct() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        sku,
-        fabric,
-        color,
-        imageUrl,
-        specialty,
-        priceStr,
-        price: parseInt(price),
-        sizes,
-        sleeveType,
-        catalogue,
-        gst5Percent,
-        singleAvailable,
-        type,
+        ...form,
+        price: parseInt(form.price), // convert to number if needed
+        imageUrl
       }),
     });
 
