@@ -1,27 +1,46 @@
-// 6. app/all-products/page.jsx
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { CldImage } from 'next-cloudinary';
+import ProductCard from './components/ProductCard';
 
 export default function AllProducts() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState({
+    type: '',
+    color: '',
+    size: '',
+    priceRange: '', // Optional
+  });
 
-  const [copiedId, setCopiedId] = useState(null);
-  const [loadingId, setLoadingId] = useState(null); // holds the ID of the product being updated
+  const [uniqueTypes, setUniqueTypes] = useState([]);
+  const [uniqueColors, setUniqueColors] = useState([]);
+  const [uniqueSizes, setUniqueSizes] = useState([]);
 
   useEffect(() => {
     fetch('/api/products')
       .then((res) => res.json())
-      .then((data) => setProducts(data));
+      .then((data) => {
+        setProducts(data);
+
+        const types = [...new Set(data.map((p) => p.type).filter(Boolean))];
+        const colors = [...new Set(data.map((p) => p.color).filter(Boolean))];
+        const sizes = [
+          ...new Set(
+            data
+              .flatMap((p) => p.sizes?.split(',').map((s) => s.trim()) || [])
+              .filter(Boolean)
+          ),
+        ];
+
+        setUniqueTypes(types);
+        setUniqueColors(colors);
+        setUniqueSizes(sizes);
+      });
   }, []);
 
-  const router = useRouter();
-
   const filtered = products.filter((p) => {
+    // SEARCH LOGIC
     const terms = search.toLowerCase().split(' ').filter(Boolean);
-
     const searchableFields = [
       p.sku,
       p.fabric,
@@ -37,16 +56,21 @@ export default function AllProducts() {
       p.type,
     ];
 
-    return terms.every((term) =>
+    const matchesSearch = terms.every((term) =>
       searchableFields.some((field) =>
         String(field).toLowerCase().includes(term)
       )
     );
-  });
 
-  const copyId = (id) => {
-    navigator.clipboard.writeText(id);
-  };
+    // FILTER LOGIC
+    const matchesType = !filters.type || p.type === filters.type;
+    const matchesColor = !filters.color || p.color === filters.color;
+    const matchesSize =
+      !filters.size ||
+      p.sizes?.toLowerCase().includes(filters.size.toLowerCase());
+
+    return matchesSearch && matchesType && matchesColor && matchesSize;
+  });
 
   return (
     <div className='max-w-4xl mx-auto p-4'>
@@ -57,123 +81,65 @@ export default function AllProducts() {
         onChange={(e) => setSearch(e.target.value)}
         placeholder='Search products...'
       />
+      <div className='mb-6 flex flex-wrap gap-4'>
+        <select
+          value={filters.type}
+          onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+          className='border px-3 py-1 rounded'
+        >
+          <option value=''>Filter by Type</option>
+          {uniqueTypes.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={filters.color}
+          onChange={(e) => setFilters({ ...filters, color: e.target.value })}
+          className='border px-3 py-1 rounded'
+        >
+          <option value=''>Filter by Color</option>
+          {uniqueColors.map((color) => (
+            <option key={color} value={color}>
+              {color}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={filters.size}
+          onChange={(e) => setFilters({ ...filters, size: e.target.value })}
+          className='border px-3 py-1 rounded'
+        >
+          <option value=''>Filter by Size</option>
+          {uniqueSizes.map((size) => (
+            <option key={size} value={size}>
+              {size}
+            </option>
+          ))}
+        </select>
+
+        <button
+          onClick={() =>
+            setFilters((prev) => ({
+              ...prev,
+              type: '',
+              color: '',
+              size: '',
+              priceRange: '', // optional
+            }))
+          }
+          className='px-3 py-1 bg-red-100 text-red-600 rounded cursor-pointer hover:bg-red-200'
+        >
+          Clear Filters
+        </button>
+      </div>
+
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         {filtered.map((p) => (
-          <div key={p._id} className='border rounded shadow p-4 space-y-4'>
-            {/* Top Row: Info and Image */}
-            <div className='flex gap-4'>
-              {/* Left side: Info */}
-              <div className='flex-1 space-y-1 text-sm text-gray-800'>
-                {[
-                  ['SKU', p.sku],
-                  ['Price', `₹${p.price} (${p.priceStr})`],
-                  ['Color', p.color],
-                  ['Fabric', p.fabric],
-                  ['Specialty', p.specialty],
-                  ['Sizes', p.sizes],
-                  ['Sleeve Type', p.sleeveType],
-                  ['Catalogue', p.catalogue],
-                  ['GST 5%', p.gst5Percent],
-                  ['Single Available', p.singleAvailable],
-                  ['Type', p.type],
-                ].map(([label, value]) => (
-                  <p key={label}>
-                    <strong>{label}:</strong> {value || '—'}
-                  </p>
-                ))}
-              </div>
-
-              {/* Right side: Image */}
-              {p.imageUrl && (
-                <div className='w-40 flex flex-col items-center'>
-                  <CldImage
-                    src={p.imageUrl}
-                    alt={`${p.sku} - ${p.color}`}
-                    width={100}
-                    height={200}
-                    className='w-full object-cover'
-                  />
-                  <a
-                    href={p.imageUrl}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-blue-500 text-sm mt-2 underline cursor-pointer'
-                  >
-                    View Image
-                  </a>
-                </div>
-              )}
-            </div>
-
-            {/* Bottom Row: Buttons */}
-            <div className='flex flex-row flex-wrap gap-2 items-center'>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(p._id);
-                  setCopiedId(p._id);
-                  setTimeout(() => setCopiedId(null), 1500);
-                }}
-                className={`whitespace-nowrap px-3 py-1 text-sm rounded border font-bold transition-all duration-200 cursor-pointer ${
-                  copiedId === p._id
-                    ? 'bg-green-100 border-green-400 text-green-700'
-                    : 'bg-white border-gray-300 hover:bg-gray-100 text-gray-700'
-                }`}
-              >
-                {copiedId === p._id ? 'Copied!' : 'Copy ID'}
-              </button>
-
-              <button
-                onClick={() => router.push(`/edit-product?id=${p._id}`)}
-                className='whitespace-nowrap bg-purple-600 hover:bg-purple-700 text-white font-semibold px-3 py-1 rounded-md cursor-pointer shadow'
-              >
-                ✏️ Edit
-              </button>
-
-              <button
-                disabled={loadingId === p._id}
-                className={`whitespace-nowrap px-3 py-1 rounded text-white transition-colors ${
-                  loadingId === p._id
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : p.deleteRequest
-                    ? 'bg-red-500 hover:bg-red-600 cursor-pointer'
-                    : 'bg-blue-500 hover:bg-blue-600 cursor-pointer'
-                }`}
-                onClick={async () => {
-                  setLoadingId(p._id);
-
-                  const res = await fetch('/api/products/patch', {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      id: p._id,
-                      deleteRequest: !p.deleteRequest,
-                    }),
-                  });
-
-                  if (res.ok) {
-                    const updatedProduct = await res.json();
-                    setProducts((prev) =>
-                      prev.map((p) =>
-                        p._id === updatedProduct._id ? updatedProduct : p
-                      )
-                    );
-                  }
-
-                  setLoadingId(null);
-                }}
-              >
-                {loadingId === p._id ? (
-                  <>
-                    <span className='animate-spin mr-2'>⏳</span>Processing...
-                  </>
-                ) : p.deleteRequest ? (
-                  'Cancel Delete'
-                ) : (
-                  'Request Delete'
-                )}
-              </button>
-            </div>
-          </div>
+          <ProductCard key={p._id} product={p} setProducts={setProducts} />
         ))}
       </div>
     </div>

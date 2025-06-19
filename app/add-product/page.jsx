@@ -159,10 +159,10 @@ export default function AddProduct() {
               className='w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-300 outline-none transition'
             >
               <option value=''>Select Type</option>
-              <option value='longDress'>Long Dress</option>
-              <option value='kurti'>Kurti</option>
-              <option value='gown'>Gown</option>
-              <option value='saree'>Saree</option>
+              <option value='Long Dress'>Long Dress</option>
+              <option value='Kurti'>Kurti</option>
+              <option value='Gown'>Gown</option>
+              <option value='Saree'>Saree</option>
               {/* Add more types as needed */}
             </select>
           </div>

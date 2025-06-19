@@ -152,6 +152,27 @@ export default function EditProduct() {
           onChange={handleChange}
         />
       ))}
+      <div className='mb-4'>
+        <label
+          htmlFor='type'
+          className='block text-sm font-semibold text-gray-700 mb-1'
+        >
+          Type
+        </label>
+        <select
+          id='type'
+          value={form.type}
+          onChange={handleChange}
+          className='w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-300 outline-none transition'
+        >
+          <option value=''>Select Type</option>
+          <option value='longDress'>Long Dress</option>
+          <option value='kurti'>Kurti</option>
+          <option value='gown'>Gown</option>
+          <option value='saree'>Saree</option>
+          {/* Add more types as needed */}
+        </select>
+      </div>
 
       <div className='mb-4'>
         <label className='block mb-1 font-medium'>Product Image</label>
@@ -202,7 +223,7 @@ export default function EditProduct() {
         {image && (
           <button
             onClick={removeImage}
-            className="mt-2 inline-flex items-center gap-1 text-sm text-red-600 font-semibold px-3 py-1 rounded hover:bg-red-100 hover:text-red-700 transition-colors duration-200 cursor-pointer"
+            className='mt-2 inline-flex items-center gap-1 text-sm text-red-600 font-semibold px-3 py-1 rounded hover:bg-red-100 hover:text-red-700 transition-colors duration-200 cursor-pointer'
           >
             ❌ Remove New Image
           </button>
