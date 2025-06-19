@@ -1,15 +1,33 @@
 'use client';
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // 🔁 Re-check auth whenever pathname changes (login/logout nav triggers it)
+  useEffect(() => {
+    const checkAuth = async () => {
+      const res = await fetch('/api/auth-status', { cache: 'no-store' });
+      const data = await res.json();
+      setLoggedIn(data.loggedIn);
+    };
+    checkAuth();
+  }, [pathname]); // 🔁 depend on pathname
+
+  const handleLogout = async () => {
+    await fetch('/api/logout');
+    router.push('/login'); // triggers auth-status refetch via pathname change
+  };
 
   const linkClass = (path) =>
     `px-4 py-2 rounded-md font-medium transition ${
       pathname === path
-        ? "bg-blue-600 text-white"
-        : "text-blue-700 hover:bg-blue-100"
+        ? 'bg-blue-600 text-white'
+        : 'text-blue-700 hover:bg-blue-100'
     }`;
 
   return (
@@ -18,13 +36,29 @@ export default function Navbar() {
         <Link href="/" className="text-xl font-bold text-blue-700">
           Dhunki Product App
         </Link>
-        <div className="flex gap-4">
-          <Link href="/add-product" className={linkClass("/add-product")}>
+        <div className="flex gap-4 items-center">
+          <Link href="/add-product" className={linkClass('/add-product')}>
             Add Product
           </Link>
-          <Link href="/all-products" className={linkClass("/all-products")}>
+          <Link href="/all-products" className={linkClass('/all-products')}>
             All Products
           </Link>
+
+          {loggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-md cursor-pointer transition"
+            >
+              Logout
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md transition"
+            >
+              Login
+            </Link>
+          )}
         </div>
       </div>
     </nav>
