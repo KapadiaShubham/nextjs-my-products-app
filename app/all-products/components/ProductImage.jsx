@@ -8,8 +8,8 @@ export default function ProductImage({ product }) {
       <CldImage
         src={product.imageUrl}
         alt={`${product.sku} - ${product.color}`}
-        width={100}
-        height={200}
+        width={50}
+        height={100}
         className="w-full object-cover"
       />
       <a
