@@ -20,7 +20,7 @@ export async function POST(req) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
-  const response = NextResponse.redirect(new URL("/", req.url));
+  const response = NextResponse.redirect(new URL("/login", req.url));
   response.cookies.set("auth", "true", {
     httpOnly: true,
     path: "/",
