@@ -42,6 +42,7 @@ export default function AllProducts() {
     // SEARCH LOGIC
     const terms = search.toLowerCase().split(' ').filter(Boolean);
     const searchableFields = [
+      p._id, // ✅ Now searchable by MongoDB ObjectID
       p.sku,
       p.fabric,
       p.color,

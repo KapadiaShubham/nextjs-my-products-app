@@ -121,7 +121,8 @@ export default function AddProduct() {
     setSaving(false);
     setSuccess(true);
     setTimeout(() => setSuccess(false), 3000);
-    clearForm();
+    // clearForm();
+    removeImage();
   };
 
   return (
