@@ -4,12 +4,13 @@ import ProductCard from './components/ProductCard';
 
 export default function AllProducts() {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true); // 👈
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     type: '',
     color: '',
     size: '',
-    priceRange: '', // Optional
+    priceRange: '',
   });
 
   const [uniqueTypes, setUniqueTypes] = useState([]);
@@ -35,14 +36,14 @@ export default function AllProducts() {
         setUniqueTypes(types);
         setUniqueColors(colors);
         setUniqueSizes(sizes);
-      });
+      })
+      .finally(() => setLoading(false)); // 👈
   }, []);
 
   const filtered = products.filter((p) => {
-    // SEARCH LOGIC
     const terms = search.toLowerCase().split(' ').filter(Boolean);
     const searchableFields = [
-      p._id, // ✅ Now searchable by MongoDB ObjectID
+      p._id,
       p.sku,
       p.fabric,
       p.color,
@@ -63,7 +64,6 @@ export default function AllProducts() {
       )
     );
 
-    // FILTER LOGIC
     const matchesType = !filters.type || p.type === filters.type;
     const matchesColor = !filters.color || p.color === filters.color;
     const matchesSize =
@@ -82,6 +82,7 @@ export default function AllProducts() {
         onChange={(e) => setSearch(e.target.value)}
         placeholder='Search products...'
       />
+
       <div className='mb-6 flex flex-wrap gap-4'>
         <select
           value={filters.type}
@@ -124,13 +125,7 @@ export default function AllProducts() {
 
         <button
           onClick={() =>
-            setFilters((prev) => ({
-              ...prev,
-              type: '',
-              color: '',
-              size: '',
-              priceRange: '', // optional
-            }))
+            setFilters({ type: '', color: '', size: '', priceRange: '' })
           }
           className='px-3 py-1 bg-red-100 text-red-600 rounded cursor-pointer hover:bg-red-200'
         >
@@ -138,11 +133,20 @@ export default function AllProducts() {
         </button>
       </div>
 
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-        {filtered.map((p) => (
-          <ProductCard key={p._id} product={p} setProducts={setProducts} />
-        ))}
-      </div>
+      {loading ? (
+        <div className='text-center py-12'>
+          <div className='animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mx-auto mb-3'></div>
+          <p className='text-gray-600 font-medium'>Loading products...</p>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className='text-center text-gray-500 mt-10'>No products found.</div>
+      ) : (
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          {filtered.map((p) => (
+            <ProductCard key={p._id} product={p} setProducts={setProducts} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
