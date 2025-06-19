@@ -16,7 +16,10 @@ export default function LoginPage() {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    if (res.ok) router.push('/');
+    if (res.ok) {
+  window.location.href = '/'; // 🔁 forces full reload after login
+}
+
     else setError('Invalid credentials');
   };
 

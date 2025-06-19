@@ -20,7 +20,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await fetch('/api/logout');
-    router.push('/login'); // triggers auth-status refetch via pathname change
+    window.location.href = '/login'; // 🔁 forces full reload
   };
 
   const linkClass = (path) =>
@@ -31,30 +31,30 @@ export default function Navbar() {
     }`;
 
   return (
-    <nav className="bg-white shadow p-4 z-50">
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
-        <Link href="/" className="text-xl font-bold text-blue-700">
+    <nav className='bg-white shadow p-4 z-50'>
+      <div className='max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2'>
+        <Link href='/' className='text-xl font-bold text-blue-700'>
           Dhunki Product App
         </Link>
-        <div className="flex gap-4 items-center">
-          <Link href="/add-product" className={linkClass('/add-product')}>
+        <div className='flex gap-4 items-center'>
+          <Link href='/add-product' className={linkClass('/add-product')}>
             Add Product
           </Link>
-          <Link href="/all-products" className={linkClass('/all-products')}>
+          <Link href='/all-products' className={linkClass('/all-products')}>
             All Products
           </Link>
 
           {loggedIn ? (
             <button
               onClick={handleLogout}
-              className="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-md cursor-pointer transition"
+              className='bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-md cursor-pointer transition'
             >
               Logout
             </button>
           ) : (
             <Link
-              href="/login"
-              className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md transition"
+              href='/login'
+              className='bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md transition'
             >
               Login
             </Link>
