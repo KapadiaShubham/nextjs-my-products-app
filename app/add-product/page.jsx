@@ -163,7 +163,8 @@ export default function AddProduct() {
               <option value='Long Dress'>Long Dress</option>
               <option value='Kurti'>Kurti</option>
               <option value='Gown'>Gown</option>
-              <option value='Saree'>Saree</option>
+              <option value='Western Wear'>Western Wear</option>
+              <option value='T-Shirts & Tops'>T-Shirts & Tops</option>
               {/* Add more types as needed */}
             </select>
           </div>

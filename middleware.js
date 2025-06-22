@@ -1,4 +1,4 @@
-// ==== app/middleware.js ====
+// ==== root_folder -> middleware.js ====
 import { NextResponse } from 'next/server';
 
 const protectedPaths = ['/all-products', '/edit-product', '/add-product'];

@@ -18,27 +18,37 @@ export default function AllProducts() {
   const [uniqueSizes, setUniqueSizes] = useState([]);
 
   useEffect(() => {
-    fetch('/api/products')
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data);
+  fetch('/api/products')
+    .then(async (res) => {
+      if (!res.ok) {
+        const errorText = await res.text(); // handle error gracefully
+        throw new Error(`Error ${res.status}: ${errorText}`);
+      }
+      return res.json(); // ✅ Safe to parse JSON now
+    })
+    .then((data) => {
+      setProducts(data);
 
-        const types = [...new Set(data.map((p) => p.type).filter(Boolean))];
-        const colors = [...new Set(data.map((p) => p.color).filter(Boolean))];
-        const sizes = [
-          ...new Set(
-            data
-              .flatMap((p) => p.sizes?.split(',').map((s) => s.trim()) || [])
-              .filter(Boolean)
-          ),
-        ];
+      const types = [...new Set(data.map((p) => p.type).filter(Boolean))];
+      const colors = [...new Set(data.map((p) => p.color).filter(Boolean))];
+      const sizes = [
+        ...new Set(
+          data
+            .flatMap((p) => p.sizes?.split(',').map((s) => s.trim()) || [])
+            .filter(Boolean)
+        ),
+      ];
 
-        setUniqueTypes(types);
-        setUniqueColors(colors);
-        setUniqueSizes(sizes);
-      })
-      .finally(() => setLoading(false)); // 👈
-  }, []);
+      setUniqueTypes(types);
+      setUniqueColors(colors);
+      setUniqueSizes(sizes);
+    })
+    .catch((err) => {
+      console.error('Failed to fetch products:', err.message);
+    })
+    .finally(() => setLoading(false));
+}, []);
+
 
   const filtered = products.filter((p) => {
     const terms = search.toLowerCase().split(' ').filter(Boolean);
