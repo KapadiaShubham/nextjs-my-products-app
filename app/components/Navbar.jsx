@@ -31,16 +31,16 @@ export default function Navbar() {
     }`;
 
   return (
-    <nav className='bg-white shadow p-4 z-50'>
+    <nav className='bg-white sticky top-0 shadow p-4 z-50'>
       <div className='max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2'>
         <Link href='/' className='text-xl font-bold text-blue-700'>
           Dhunki Product App
         </Link>
         <div className='flex gap-4 items-center'>
-          <Link href='/add-product' className={linkClass('/add-product')}>
+          <Link href='/add-wap' className={linkClass('/add-wap')}>
             Add Product
           </Link>
-          <Link href='/all-products' className={linkClass('/all-products')}>
+          <Link href='/all-waps' className={linkClass('/all-waps')}>
             All Products
           </Link>
 

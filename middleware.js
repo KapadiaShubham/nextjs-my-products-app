@@ -1,7 +1,7 @@
 // ==== root_folder -> middleware.js ====
 import { NextResponse } from 'next/server';
 
-const protectedPaths = ['/all-products', '/edit-product', '/add-product'];
+const protectedPaths = ['/all-products', '/edit-product', '/add-product', '/add-wap','/all-waps'];
 
 export function middleware(request) {
   const { pathname } = request.nextUrl;
