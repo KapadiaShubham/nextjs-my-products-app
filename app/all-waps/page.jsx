@@ -11,6 +11,8 @@ function formatWhatsAppText(text) {
 
 export default function AllWaps() {
   const [waps, setWaps] = useState([]);
+  const [loading, setLoading] = useState(true); // 👈 Add this
+
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [search, setSearch] = useState('');
   const [showDetailsMobile, setShowDetailsMobile] = useState(false);
@@ -18,7 +20,10 @@ export default function AllWaps() {
   useEffect(() => {
     fetch('/api/waps')
       .then((res) => res.json())
-      .then(setWaps);
+      .then((data) => {
+        setWaps(data);
+        setLoading(false); // 👈 stop loading after fetch
+      });
   }, []);
 
   const filteredWaps = waps.filter((wap) => {
@@ -29,6 +34,14 @@ export default function AllWaps() {
   });
 
   const selectedWap = filteredWaps[selectedIndex] || null;
+  
+  if (loading) {
+    return (
+      <div className='flex items-center justify-center h-[calc(100vh-75px)]'>
+        <div className='animate-spin rounded-full h-10 w-10 border-t-4 border-blue-600'></div>
+      </div>
+    );
+  }
 
   return (
     <>
