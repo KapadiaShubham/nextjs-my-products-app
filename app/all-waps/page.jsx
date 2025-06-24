@@ -34,7 +34,7 @@ export default function AllWaps() {
   });
 
   const selectedWap = filteredWaps[selectedIndex] || null;
-  
+
   if (loading) {
     return (
       <div className='flex items-center justify-center h-[calc(100vh-75px)]'>
@@ -105,23 +105,24 @@ export default function AllWaps() {
         </div>
 
         {/* Details */}
-        <div className='w-2/3 p-6 overflow-y-auto scrollbar-hidden'>
+        <div className='w-2/3 p-6 overflow-y-auto scrollbar-hidden flex md:flex-row'>
           {selectedWap ? (
             <>
               <div
-                className='prose max-w-none'
+                className='prose max-w-none w-3/5'
                 dangerouslySetInnerHTML={{
                   __html: formatWhatsAppText(selectedWap.rawText),
                 }}
               />
-              <div className='flex flex-wrap gap-2 mt-4'>
+              <div className='flex flex-wrap gap-4 content-start w-2/5'>
                 {selectedWap.images.map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt='img'
-                    className='w-24 h-24 object-cover rounded'
-                  />
+                  <div key={i} className='w-33 h-44'>
+                    <img
+                      src={url}
+                      alt='img'
+                      className='h-full w-full object-cover'
+                    />
+                  </div>
                 ))}
               </div>
             </>
