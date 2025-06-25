@@ -37,37 +37,39 @@ export default function WapForm() {
     setImages((prev) => prev.filter((_, i) => i !== index));
   }
 
-  async function uploadToCloudinary(file, index, total) {
+  const [imageProgress, setImageProgress] = useState(images.map(() => 0));
+
+  async function uploadToCloudinary(file, index) {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       const formData = new FormData();
       formData.append('file', file);
       formData.append('upload_preset', 'product_upload_preset');
 
-      xhr.open(
-        'POST',
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`
-      );
-
       xhr.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable) {
-          const singleProgress = (e.loaded / e.total) * 100;
-          const totalProgress = ((index + singleProgress / 100) / total) * 100;
-          setUploadProgress(Math.round(totalProgress));
+          const percent = (e.loaded / e.total) * 100;
+          setImageProgress((prev) => {
+            const updated = [...prev];
+            updated[index] = percent;
+            return updated;
+          });
         }
       });
 
       xhr.onload = () => {
         const res = JSON.parse(xhr.responseText);
-        if (xhr.status === 200) {
-          resolve(res.secure_url);
-        } else {
-          reject(new Error(res.error?.message || 'Upload failed'));
-        }
+        xhr.status === 200
+          ? resolve(res.secure_url)
+          : reject(new Error(res.error?.message || 'Upload failed'));
       };
 
-      xhr.onerror = () => reject(new Error('Network error during upload'));
+      xhr.onerror = () => reject(new Error('Network error'));
 
+      xhr.open(
+        'POST',
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`
+      );
       xhr.send(formData);
     });
   }
@@ -134,16 +136,44 @@ export default function WapForm() {
                 >
                   ×
                 </button>
+                {saving && (
+                  <div className='absolute bottom-0 left-0 w-full h-1 bg-gray-300 rounded'>
+                    <div
+                      className='h-full bg-blue-500 rounded'
+                      style={{ width: `${imageProgress[index] || 0}%` }}
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>
+
+          {/* Hidden Input */}
           <input
+            id='image-upload'
             type='file'
             accept='image/*'
             multiple
             onChange={handleImageChange}
-            className='mt-2'
+            className='hidden'
           />
+
+          {/* Custom Button */}
+          <label
+            htmlFor='image-upload'
+            className='inline-block cursor-pointer bg-blue-100 text-blue-800 px-4 py-2 rounded-md border border-blue-300 hover:bg-blue-200 transition duration-200'
+          >
+            + Choose Images
+          </label>
+
+          {/* Optional: List of selected file names */}
+          {images.length > 0 && (
+            <div className='text-sm text-gray-600 mt-1'>
+              {images.map((file, idx) => (
+                <div key={idx}>{file.name}</div>
+              ))}
+            </div>
+          )}
         </div>
 
         <button
@@ -154,18 +184,6 @@ export default function WapForm() {
           {saving ? 'Saving...' : 'Save WAP'}
         </button>
       </form>
-      {saving && (
-  <div className="text-sm text-gray-600">
-    Uploading... {uploadProgress}%
-    <div className="w-full bg-gray-200 h-2 rounded mt-1">
-      <div
-        className="h-2 bg-blue-600 rounded"
-        style={{ width: `${uploadProgress}%` }}
-      />
-    </div>
-  </div>
-)}
-
 
       <div className='mt-6 space-y-2'>
         <h2 className='text-lg font-bold'>Live Preview:</h2>
